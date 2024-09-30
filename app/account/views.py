@@ -1,4 +1,5 @@
 from django.views import generic
+from django.urls import reverse_lazy
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -6,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 
-from .forms import LoginForm
+from .forms import LoginForm, UserRegistrationForm
 from .mixin import LogoutRequiredMixin
 
 # Create your views here.
@@ -46,8 +47,16 @@ class Login(LogoutRequiredMixin, generic.View):
         return render(self.request, 'accounts/login.html', {'form': form})
 
 
-# Logout page handling
+# Logout handling
 class Logout(generic.View):
     def get(self, *args, **kwargs):
         logout(self.request)
         return redirect('login')
+    
+
+# Registration Page handling
+@method_decorator(never_cache, name='dispatch')
+class Registration(LogoutRequiredMixin, generic.CreateView):
+    template_name = 'accounts/registration.html'
+    form_class = UserRegistrationForm
+    success_url = reverse_lazy('login')
