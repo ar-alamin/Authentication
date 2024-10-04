@@ -60,3 +60,8 @@ class Registration(LogoutRequiredMixin, generic.CreateView):
     template_name = 'accounts/registration.html'
     form_class = UserRegistrationForm
     success_url = reverse_lazy('login')
+
+    def form_valid(self, form):
+        messages.success(self.request, "Registration successful !")
+        return super().form_valid(form)
+    
