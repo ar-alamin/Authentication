@@ -7,10 +7,15 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 
+from django.contrib.auth.views import (
+    PasswordResetView
+)
+
 from .forms import (
     LoginForm, 
     UserRegistrationForm, 
-    ChangePasswordForm
+    ChangePasswordForm,
+    ResetPasswordForm
 )
 from .mixin import LogoutRequiredMixin
 
@@ -88,3 +93,9 @@ class ChangePassword(LoginRequiredMixin, generic.FormView):
         user.save()
         messages.success(self.request, "Password changed Successfully !")
         return super().form_valid(form)
+
+
+# Password Reset Handling
+class SendEmailToPassword(PasswordResetView):
+    template_name = 'accounts/password_reset.html'
+    form_class  = ResetPasswordForm
