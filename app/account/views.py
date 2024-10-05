@@ -8,14 +8,16 @@ from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 
 from django.contrib.auth.views import (
-    PasswordResetView
+    PasswordResetView,
+    PasswordResetConfirmView
 )
 
 from .forms import (
     LoginForm, 
     UserRegistrationForm, 
     ChangePasswordForm,
-    ResetPasswordForm
+    ResetPasswordForm,
+    ResetPasswordConfirmForm
 )
 from .mixin import LogoutRequiredMixin
 
@@ -99,3 +101,14 @@ class ChangePassword(LoginRequiredMixin, generic.FormView):
 class SendEmailToPassword(PasswordResetView):
     template_name = 'accounts/password_reset.html'
     form_class  = ResetPasswordForm
+
+
+class ResetPasswordConfirm(PasswordResetConfirmView):
+    template_name = 'accounts/password_reset_confirm.html'
+    form_class = ResetPasswordConfirmForm
+    success_url = reverse_lazy('login')
+
+    def form_valid(self, form):
+        messages.success(self.request, "Password reset successfully !")
+        return super().form_valid(form)
+    
