@@ -1,3 +1,4 @@
+import threading
 from django import forms
 from django.contrib.auth import get_user_model
 
@@ -121,16 +122,40 @@ class ChangePasswordForm(forms.Form):
         return new_password1
 
 #Reset Password Form
-class ResetPasswordForm(PasswordResetForm):
+class SendEmailForm(PasswordResetForm, threading.Thread):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        threading.Thread.__init__(self)
 
         for field in self.fields:
             self.fields[field].widget.attrs.update({"class": "form-control"})
 
+    def clean_email(self):
+        if not User.objects.filter(email__iexact=self.cleaned_data.get('email')).exists():
+            raise forms.ValidationError("The email is not register")
+
+        return self.cleaned_data.get('email')
+    
+    def run(self) -> None:
+        return super().send_mail(
+            self.subject_template_name, 
+            self.email_template_name, 
+            self.context, 
+            self.from_email, 
+            self.to_email, 
+            self.html_email_template_name
+        )
+    
     def send_mail(self, subject_template_name, email_template_name, context, from_email, to_email, html_email_template_name):
-            return super().send_mail(subject_template_name, email_template_name, context, from_email, to_email, html_email_template_name)
+        self.subject_template_name = subject_template_name
+        self.email_template_name = email_template_name
+        self.context = context
+        self.from_email = from_email
+        self.to_email = to_email
+        self.html_email_template_name = html_email_template_name
+        
+        self.start()
 
 
 class ResetPasswordConfirmForm(forms.Form):

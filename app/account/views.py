@@ -16,7 +16,7 @@ from .forms import (
     LoginForm, 
     UserRegistrationForm, 
     ChangePasswordForm,
-    ResetPasswordForm,
+    SendEmailForm,
     ResetPasswordConfirmForm
 )
 from .mixin import LogoutRequiredMixin
@@ -100,7 +100,7 @@ class ChangePassword(LoginRequiredMixin, generic.FormView):
 # Password Reset Handling
 class SendEmailToPassword(PasswordResetView):
     template_name = 'accounts/password_reset.html'
-    form_class  = ResetPasswordForm
+    form_class  = SendEmailForm
 
 
 class ResetPasswordConfirm(PasswordResetConfirmView):
